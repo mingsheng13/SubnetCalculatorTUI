@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 
 #include "ftxui/dom/elements.hpp"
@@ -10,37 +9,12 @@
 
 using namespace ftxui;
 
-
-ButtonOption SimpleButton() {
-    ButtonOption option;
-    option.transform = [](const EntryState &s) {
-        return s.focused ? text(" " + s.label + " ") | inverted
-                         : text("[" + s.label + "]");
-    };
-    return option;
-}
-
-ButtonOption myButton()
-{
-    ButtonOption o;
-//    o = ButtonOption::Animated(Color::Default, Color::White, Color::Default, Color::Red);
-    o = ButtonOption::Animated(Color::Red);
-    o.transform = [](const EntryState &s) {
-        return s.focused ? text(" " + s.label + " ") | inverted
-                         : text("[" + s.label + "]");
-    };
-    return o;
-}
-
 Component display()
 {
     class IP : public ComponentBase
     {
     public:
-        IP()
-        {
-            Add(container);
-        }
+        IP(){Add(container);}
 
         IPV4 ipv4;
         std::string networkId;
@@ -52,22 +26,26 @@ Component display()
         std::string ipAddr;
         std::string subnetAddr;
 
-        ButtonOption style = ButtonOption::Animated(Color::Default, Color::White, Color::Default, Color::Red);
-
-        Component ipInput = Input(&ipAddr, "....") | size(WIDTH, EQUAL, 16);
-        Component subnetInput = Input(&subnetAddr, "....") | size(WIDTH, EQUAL, 16);
-        Component enterButton = Button("↵", [&]
+        std::function<void()> enter()
         {
-            ipv4.setIp(ipAddr);
-            ipv4.setSubnet(subnetAddr);
-            ipv4.update();
-            networkId = IPV4::to_string(ipv4.getNetworkId());
-            broadcastId = IPV4::to_string(ipv4.getBroadcastId());
-            hostStartId = IPV4::to_string(ipv4.getHostsId().startHost);
-            hostEndId = IPV4::to_string(ipv4.getHostsId().endHost);
-            hostCount = std::to_string(ipv4.getNumberOfHosts());
-            usableHostCount = std::to_string(ipv4.getUsableNumberOfHosts());
-        }, ButtonOption::Ascii());
+            return [&]
+            {
+                ipv4.setIp(ipAddr);
+                ipv4.setSubnet(subnetAddr);
+                ipv4.update();
+                networkId = IPV4::to_string(ipv4.getNetworkId());
+                broadcastId = IPV4::to_string(ipv4.getBroadcastId());
+                hostStartId = IPV4::to_string(ipv4.getHostsId().startHost);
+                hostEndId = IPV4::to_string(ipv4.getHostsId().endHost);
+                hostCount = std::to_string(ipv4.getNumberOfHosts());
+                usableHostCount = std::to_string(ipv4.getUsableNumberOfHosts());
+            };
+        };
+
+        Decorator inputStyle = size(WIDTH, EQUAL, 16);
+        Component ipInput = Input(&ipAddr, "....") | inputStyle;
+        Component subnetInput = Input(&subnetAddr, "....") | inputStyle;
+        Component enterButton = Button("↵", enter(), ButtonOption::Ascii());
 
         Component container = Container::Horizontal(
                 {
@@ -76,10 +54,8 @@ Component display()
                         enterButton
                 });
 
-
         Element Render() override
         {
-
             return vbox(
             {
                 hbox(
@@ -90,19 +66,17 @@ Component display()
                     separatorEmpty() | flex,
                     enterButton->Render()
                 }) | border,
-
-               vbox(
-               {
-                   text("ip:                    " + ipAddr),
-                   text("subnet:                " + subnetAddr),
-                   text("network id:            " + networkId),
-                   text("broadcast id:          " + broadcastId),
-                   text("host start id:         " + hostStartId),
-                   text("host end id:           " + hostEndId),
-                   text("host count:            " + hostCount),
-                   text("usable host count:     " + usableHostCount)
-
-               }) | border
+                vbox(
+                {
+                    text("IP:                    " + ipAddr),
+                    text("SUBNET:                " + subnetAddr),
+                    text("NETWORK ID:            " + networkId),
+                    text("BROADCAST ID:          " + broadcastId),
+                    text("HOST START:            " + hostStartId),
+                    text("HOST END:              " + hostEndId),
+                    text("HOST COUNT:            " + hostCount),
+                    text("USABLE HOST COUNT:     " + usableHostCount)
+                }) | border
             });
         }
 
