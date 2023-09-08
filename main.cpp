@@ -4,8 +4,9 @@
 #include "ftxui/component/component_base.hpp"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/screen_interactive.hpp"
+#include "ftxui-ip-input/ipv4.hpp"
 
-#include "IPV4.h"
+#include "IPV4.hpp"
 
 using namespace ftxui;
 
@@ -43,8 +44,8 @@ Component display()
         };
 
         Decorator inputStyle = size(WIDTH, EQUAL, 16);
-        Component ipInput = Input(&ipAddr, "....") | inputStyle;
-        Component subnetInput = Input(&subnetAddr, "....") | inputStyle;
+        Component ipInput = InputIPV4(&ipAddr);
+        Component subnetInput = InputIPV4(&subnetAddr);
         Component enterButton = Button("↵", enter(), ButtonOption::Ascii());
 
         Component container = Container::Horizontal(
